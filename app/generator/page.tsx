@@ -1,18 +1,22 @@
 "use client";
 
-import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChevronDownIcon,
   ChevronLast,
   ChevronLeft,
   ChevronRight,
+  RefreshCw,
   Shield,
+  ShieldAlertIcon,
+  Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -129,9 +133,9 @@ const levels: Level[] = [
   },
 ];
 
-type STEP = "WEAPON-SELECTION" | "PROJECT-CATEGORY" | "TIMEFRAME" | "LEVEL";
+type Step = "WEAPON-SELECTION" | "PROJECT-CATEGORY" | "TIMEFRAME" | "LEVEL";
 
-const STEPS: STEP[] = [
+const steps: Step[] = [
   "WEAPON-SELECTION",
   "PROJECT-CATEGORY",
   "TIMEFRAME",
@@ -147,227 +151,342 @@ export default function GeneratorPage() {
     null,
   );
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
-  const [currentStep, setCurrentStep] = useState<STEP>("WEAPON-SELECTION");
-  const [error, setError] = useState("");
+  const [currentStep, setCurrentStep] = useState<Step>("WEAPON-SELECTION");
+  const [formError, setFormError] = useState("");
+  const [generationError, setGenerationError] = useState("");
   const router = useRouter();
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isIdeaGenerated, setIsIdeaGenerated] = useState(true);
+
   const goBack = () => {
-    if (STEPS.findIndex((s) => s === currentStep) === 0) {
+    if (steps.findIndex((s) => s === currentStep) === 0) {
       router.push("/");
     } else {
-      setCurrentStep(STEPS[STEPS.findIndex((s) => s === currentStep) - 1]);
+      setCurrentStep(steps[steps.findIndex((s) => s === currentStep) - 1]);
     }
   };
   const goNext = () => {
-    if (STEPS.findIndex((s) => s === currentStep) === STEPS.length - 1) {
+    if (currentStep === "WEAPON-SELECTION" && selectedWeapons.length === 0)
+      return setFormError("Please select at least one skill from the options");
+    if (currentStep === "PROJECT-CATEGORY" && selectedCategories.length === 0)
+      return setFormError(
+        "Please select at least one category from the options",
+      );
+    if (currentStep === "TIMEFRAME" && selectedTimeframe === null)
+      return setFormError("Please select at your timeframe from the options");
+    if (currentStep === "LEVEL" && selectedLevel === null)
+      return setFormError(
+        "Please select at your level of comfort from the options",
+      );
+    if (steps.findIndex((s) => s === currentStep) === steps.length - 1) {
+      setIsGenerating(true);
     } else {
-      if (currentStep === "WEAPON-SELECTION" && selectedWeapons.length === 0)
-        return setError("Please select at least one skill from the options");
-      if (currentStep === "PROJECT-CATEGORY" && selectedCategories.length === 0)
-        return setError("Please select at least one category from the options");
-      if (currentStep === "TIMEFRAME" && selectedTimeframe === null)
-        return setError("Please select at your timeframe from the options");
-      if (currentStep === "LEVEL" && selectedLevel === null)
-        return setError(
-          "Please select at your level of comfort from the options",
-        );
-      setCurrentStep(STEPS[STEPS.findIndex((s) => s === currentStep) + 1]);
+      setCurrentStep(steps[steps.findIndex((s) => s === currentStep) + 1]);
     }
   };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setError("");
+    setFormError("");
   }, [selectedWeapons, selectedCategories, selectedLevel, selectedTimeframe]);
 
   return (
-    <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
-      <Badge variant="default" className="text-xl">
-        STEP {STEPS.findIndex((s) => s === currentStep) + 1} OF {STEPS.length}
-      </Badge>
-      {currentStep === "WEAPON-SELECTION" ? (
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl italic">CHOOSE YOUR WEAPON</h1>
-          <p className="text-black/80">
-            WHat kind of wizardry do you practice? Or what are you hoping to
-            learn? (Select all that apply)
-          </p>
+    <>
+      {!isGenerating && !isIdeaGenerated && !generationError ? (
+        <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
+          <Badge variant="default" className="text-xl">
+            STEP {steps.findIndex((s) => s === currentStep) + 1} OF{" "}
+            {steps.length}
+          </Badge>
+          {currentStep === "WEAPON-SELECTION" ? (
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl italic">CHOOSE YOUR WEAPON</h1>
+              <p className="text-black/80">
+                WHat kind of wizardry do you practice? Or what are you hoping to
+                learn? (Select all that apply)
+              </p>
+            </div>
+          ) : currentStep === "PROJECT-CATEGORY" ? (
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl italic">FOLLOW YOUR EXCITEMENT</h1>
+              <p className="text-black/80">
+                What kind of problems or categories get you super hyped? (Select
+                all that apply)
+              </p>
+            </div>
+          ) : currentStep === "TIMEFRAME" ? (
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl italic">CHECK THE CALENDER</h1>
+              <p className="text-black/80">
+                How long can you realistically dedicate to this project? (Select
+                one)
+              </p>
+            </div>
+          ) : currentStep === "LEVEL" ? (
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl italic">DETERMINE YOUR TIER</h1>
+              <p className="text-black/80">
+                What is your current comfort level with software or hardware
+                engineering? (Select one)
+              </p>
+            </div>
+          ) : null}
+
+          <Progress
+            value={
+              // 25 * 2
+              (100 / steps.length) *
+              (steps.findIndex((s) => s === currentStep) + 1)
+            }
+            className="w-1/4"
+          />
+          {formError && (
+            <Alert className="w-[70%]" variant={"destructive"}>
+              <Shield size={24} />
+              <AlertTitle>{formError}</AlertTitle>
+            </Alert>
+          )}
+
+          {currentStep === "WEAPON-SELECTION" ? (
+            <div className="grid grid-cols-2 gap-4">
+              {weapons.map((weapon, idx) => {
+                const isSelected =
+                  selectedWeapons.find((w) => w.name === weapon.name) && true;
+
+                const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
+                  e.preventDefault();
+                  if (isSelected)
+                    setSelectedWeapons((prev) =>
+                      prev.filter((w) => w.name !== weapon.name),
+                    );
+                  else setSelectedWeapons([...selectedWeapons, weapon]);
+                };
+                return (
+                  <Card
+                    className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
+                    key={idx}
+                    onClick={toggle}
+                  >
+                    <div>
+                      <Checkbox checked={isSelected} onChange={toggle} />
+                    </div>
+                    <div>
+                      <h5>{weapon.name}</h5>
+                      <p className="text-sm text-black/80">
+                        {weapon.description}
+                      </p>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : currentStep === "PROJECT-CATEGORY" ? (
+            <div className="grid grid-cols-2 gap-4">
+              {projectCategory.map((category, idx) => {
+                const isSelected =
+                  selectedCategories.find((c) => c.name === category.name) &&
+                  true;
+
+                const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
+                  e.preventDefault();
+                  if (isSelected)
+                    setSelectedCategories((prev) =>
+                      prev.filter((c) => c.name !== category.name),
+                    );
+                  else setSelectedCategories([...selectedCategories, category]);
+                };
+                return (
+                  <Card
+                    className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
+                    key={idx}
+                    onClick={toggle}
+                  >
+                    <div>
+                      <Checkbox checked={isSelected} onChange={toggle} />
+                    </div>
+                    <div>
+                      <h5>{category.name}</h5>
+                      <p className="text-sm text-black/80">
+                        {category.description}
+                      </p>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : currentStep === "TIMEFRAME" ? (
+            <div className="grid grid-cols-1 gap-4">
+              {timeframes.map((timeframe, idx) => {
+                const isSelected =
+                  selectedTimeframe?.name === timeframe.name && true;
+
+                const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
+                  e.preventDefault();
+                  if (!isSelected) setSelectedTimeframe(timeframe);
+                };
+
+                return (
+                  <Card
+                    className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
+                    key={idx}
+                    onClick={toggle}
+                  >
+                    <div>
+                      <Checkbox checked={isSelected} onChange={toggle} />
+                    </div>
+                    <div>
+                      <h5>{timeframe.name}</h5>
+                      <p className="text-sm text-black/80">
+                        {timeframe.description}
+                      </p>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : currentStep === "LEVEL" ? (
+            <div className="grid grid-cols-1 gap-4">
+              {levels.map((level, idx) => {
+                const isSelected = selectedLevel?.name === level.name && true;
+
+                const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
+                  e.preventDefault();
+                  if (!isSelected) setSelectedLevel(level);
+                };
+
+                return (
+                  <Card
+                    className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
+                    key={idx}
+                    onClick={toggle}
+                  >
+                    <div>
+                      <Checkbox checked={isSelected} onChange={toggle} />
+                    </div>
+                    <div>
+                      <h5>{level.name}</h5>
+                      <p className="text-sm text-black/80">
+                        {level.description}
+                      </p>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : null}
+
+          <div className="mt-5 flex items-center justify-between w-[70%] pt-5 border-t-5">
+            <Button variant={"neutral"} size={"lg"} onClick={goBack}>
+              <ChevronLeft />{" "}
+              {steps.findIndex((s) => s === currentStep) === 0
+                ? "CANCEL"
+                : "BACK"}
+            </Button>
+            <Button size={"lg"} onClick={goNext}>
+              {steps.findIndex((s) => s === currentStep) === steps.length - 1
+                ? "GENERATE IDEA"
+                : "CONTINUE"}{" "}
+              <ChevronRight />
+            </Button>
+          </div>
         </div>
-      ) : currentStep === "PROJECT-CATEGORY" ? (
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl italic">FOLLOW YOUR EXCITEMENT</h1>
-          <p className="text-black/80">
-            What kind of problems or categories get you super hyped? (Select all
-            that apply)
-          </p>
+      ) : isGenerating ? (
+        <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
+          <Card className="p-5">
+            <Sparkles size={34} />
+          </Card>
+
+          <div className="space-y-3 text-center">
+            <h1 className="text-4xl italic">ANALYZING YOUR INPUT...</h1>
+
+            <Badge className="text-xl">GENERATING A COOL PROJECT IDEA</Badge>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            <Card
+              className={`flex gap-x-20 p-5 flex-row items-center justify-between`}
+            >
+              <div className="space-y-3">
+                <Skeleton className="h-5 w-30" />
+                <Skeleton className="h-3 w-60" />
+              </div>
+              <div>
+                <Skeleton className="h-10 w-10" />
+              </div>
+            </Card>
+            <Card
+              className={`flex gap-x-20 p-5 flex-row items-center justify-between`}
+            >
+              <div className="space-y-3">
+                <Skeleton className="h-5 w-30" />
+                <Skeleton className="h-3 w-60" />
+              </div>
+              <div>
+                <Skeleton className="h-10 w-10" />
+              </div>
+            </Card>
+            <Card
+              className={`flex gap-x-20 p-5 flex-row items-center justify-between`}
+            >
+              <div className="space-y-3">
+                <Skeleton className="h-5 w-30" />
+                <Skeleton className="h-3 w-60" />
+              </div>
+              <div>
+                <Skeleton className="h-10 w-10" />
+              </div>
+            </Card>
+          </div>
         </div>
-      ) : currentStep === "TIMEFRAME" ? (
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl italic">CHECK THE CALENDER</h1>
-          <p className="text-black/80">
-            How long can you realistically dedicate to this project? (Select
-            one)
-          </p>
+      ) : isIdeaGenerated ? (
+        <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
+          <Badge className="bg-green-500">
+            <Sparkles /> IDEAS GENERATED SUCCESSFULLY
+          </Badge>
+          <div className="space-y-3 text-center">
+            <h1 className="text-4xl italic">REQUEST FAILED</h1>
+            <p className="text-black/80">
+              AI service may currently be loaded, or there was a network issue.
+              Please retry the idea generation
+            </p>
+          </div>
+          <>Generatied</>
         </div>
-      ) : currentStep === "LEVEL" ? (
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl italic">DETERMINE YOUR TIER</h1>
-          <p className="text-black/80">
-            What is your current comfort level with software or hardware
-            engineering? (Select one)
-          </p>
+      ) : generationError ? (
+        <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
+          <Card className="p-5 bg-red-500">
+            <ShieldAlertIcon color="white" size={34} />
+          </Card>
+
+          <div className="space-y-3 text-center">
+            <h1 className="text-4xl italic">REQUEST FAILED</h1>
+            <p className="text-black/80">
+              AI service may currently be loaded, or there was a network issue.
+              Please retry the idea generation
+            </p>
+          </div>
+          <Alert variant={"destructive"} className="my-5 text-green-300">
+            <AlertDescription>{generationError}</AlertDescription>
+          </Alert>
+
+          <div className="flex items-center justify-center gap-x-5">
+            <Button size={"lg"}>
+              <RefreshCw /> RETRY
+            </Button>
+            <Button
+              size={"lg"}
+              variant={"neutral"}
+              onClick={() => {
+                setCurrentStep(steps[0]);
+                setGenerationError("");
+              }}
+            >
+              START OVER
+            </Button>
+          </div>
         </div>
       ) : null}
-
-      <Progress
-        value={
-          // 25 * 2
-          (100 / STEPS.length) * (STEPS.findIndex((s) => s === currentStep) + 1)
-        }
-        className="w-1/4"
-      />
-      {error && (
-        <Alert className="w-[70%]" variant={"destructive"}>
-          <Shield size={24} />
-          <AlertTitle>{error}</AlertTitle>
-        </Alert>
-      )}
-
-      {currentStep === "WEAPON-SELECTION" ? (
-        <div className="grid grid-cols-2 gap-4">
-          {weapons.map((weapon, idx) => {
-            const isSelected =
-              selectedWeapons.find((w) => w.name === weapon.name) && true;
-
-            const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
-              e.preventDefault();
-              if (isSelected)
-                setSelectedWeapons((prev) =>
-                  prev.filter((w) => w.name !== weapon.name),
-                );
-              else setSelectedWeapons([...selectedWeapons, weapon]);
-            };
-            return (
-              <Card
-                className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
-                key={idx}
-                onClick={toggle}
-              >
-                <div>
-                  <Checkbox checked={isSelected} onChange={toggle} />
-                </div>
-                <div>
-                  <h5>{weapon.name}</h5>
-                  <p className="text-sm text-black/80">{weapon.description}</p>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      ) : currentStep === "PROJECT-CATEGORY" ? (
-        <div className="grid grid-cols-2 gap-4">
-          {projectCategory.map((category, idx) => {
-            const isSelected =
-              selectedCategories.find((c) => c.name === category.name) && true;
-
-            const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
-              e.preventDefault();
-              if (isSelected)
-                setSelectedCategories((prev) =>
-                  prev.filter((c) => c.name !== category.name),
-                );
-              else setSelectedCategories([...selectedCategories, category]);
-            };
-            return (
-              <Card
-                className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
-                key={idx}
-                onClick={toggle}
-              >
-                <div>
-                  <Checkbox checked={isSelected} onChange={toggle} />
-                </div>
-                <div>
-                  <h5>{category.name}</h5>
-                  <p className="text-sm text-black/80">
-                    {category.description}
-                  </p>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      ) : currentStep === "TIMEFRAME" ? (
-        <div className="grid grid-cols-1 gap-4">
-          {timeframes.map((timeframe, idx) => {
-            const isSelected =
-              selectedTimeframe?.name === timeframe.name && true;
-
-            const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
-              e.preventDefault();
-              if (!isSelected) setSelectedTimeframe(timeframe);
-            };
-
-            return (
-              <Card
-                className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
-                key={idx}
-                onClick={toggle}
-              >
-                <div>
-                  <Checkbox checked={isSelected} onChange={toggle} />
-                </div>
-                <div>
-                  <h5>{timeframe.name}</h5>
-                  <p className="text-sm text-black/80">
-                    {timeframe.description}
-                  </p>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      ) : currentStep === "LEVEL" ? (
-        <div className="grid grid-cols-1 gap-4">
-          {levels.map((level, idx) => {
-            const isSelected = selectedLevel?.name === level.name && true;
-
-            const toggle = (e: React.MouseEvent | React.ChangeEvent) => {
-              e.preventDefault();
-              if (!isSelected) setSelectedLevel(level);
-            };
-
-            return (
-              <Card
-                className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
-                key={idx}
-                onClick={toggle}
-              >
-                <div>
-                  <Checkbox checked={isSelected} onChange={toggle} />
-                </div>
-                <div>
-                  <h5>{level.name}</h5>
-                  <p className="text-sm text-black/80">{level.description}</p>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      ) : null}
-
-      <div className="mt-5 flex items-center justify-between w-[70%] pt-5 border-t-5">
-        <Button variant={"neutral"} size={"lg"} onClick={goBack}>
-          <ChevronLeft />{" "}
-          {STEPS.findIndex((s) => s === currentStep) === 0 ? "CANCEL" : "BACK"}
-        </Button>
-        <Button size={"lg"} onClick={goNext}>
-          {STEPS.findIndex((s) => s === currentStep) === STEPS.length - 1
-            ? "GENERATE IDEA"
-            : "CONTINUE"}{" "}
-          <ChevronRight />
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }
