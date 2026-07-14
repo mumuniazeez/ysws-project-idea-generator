@@ -3,7 +3,13 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -451,7 +457,50 @@ export default function GeneratorPage() {
               Please retry the idea generation
             </p>
           </div>
-          <>Generatied</>
+
+          <div className="w-[80%] space-y-3">
+            <div className="flex items-center gap-x-3">
+              <Sparkles />
+              <h1 className="text-3xl">AI SUGGESTED PROJECTS</h1>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">PROJECT IDEA 1</CardTitle>
+                  <CardDescription className="font-semibold italic border-b-5 pb-2">
+                    &quot;Lorem ipsum dolor, sit amet consectetur adipisicing
+                    elit. Repudiandae, excepturi officia? Totam autem, optio,
+                    natus sit vel mollitia reiciendis in distinctio neque
+                    nostrum nam necessitatibus obcaecati molestiae. Et,
+                    dignissimos sequi.&quot;
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Unde eius ut quis amet quisquam delectus natus,
+                    necessitatibus fuga, accusamus voluptates alias, magnam
+                    porro culpa nostrum cumque qui mollitia eum dolore.
+                  </p>
+                  <div className="border-b-5 pb-3">
+                    <h6 className="font-bold">RECOMMENDED TECH STACK:</h6>
+
+                    <div className="flex flex-wrap gap-1 5">
+                      <Badge>HTML</Badge>
+                      <Badge>Tailwind CSS</Badge>
+                      <Badge>JavaScript</Badge>
+                      <Badge>Chrome Extension Manifest V3</Badge>
+                      <Badge>Chrome Extension Manifest V3</Badge>
+                      <Badge>Chrome Extension Manifest V3</Badge>
+                      <Badge>HTML</Badge>
+                      <Badge>Tailwind CSS</Badge>
+                      <Badge>JavaScript</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       ) : generationError ? (
         <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
