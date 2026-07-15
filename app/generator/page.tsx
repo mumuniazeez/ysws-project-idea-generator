@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { ProjectIdeas } from "../api/generate/route";
 
 interface Weapon {
   name: string;
@@ -78,7 +79,7 @@ const weapons: Weapon[] = [
   },
 ];
 
-const projectCategory: ProjectCategory[] = [
+const projectCategories: ProjectCategory[] = [
   {
     name: "GAMES & ARCADES",
     description: "Fun retro machines, high scores, procedural levels",
@@ -148,6 +149,13 @@ const steps: Step[] = [
   "LEVEL",
 ];
 
+export interface ApiRequestBody {
+  weapons: Weapon[];
+  projectCategories: ProjectCategory[];
+  timefame: Timeframe;
+  level: Level;
+}
+
 export default function GeneratorPage() {
   const [selectedWeapons, setSelectedWeapons] = useState<Weapon[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<
@@ -163,7 +171,37 @@ export default function GeneratorPage() {
   const router = useRouter();
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isIdeaGenerated, setIsIdeaGenerated] = useState(true);
+  const [generatedIdeas, setGeneratedIdeas] = useState<ProjectIdeas["ideas"]>(
+    [],
+  );
+
+  const startGenerating = async () => {
+    setIsGenerating(true);
+
+    const requestBody: ApiRequestBody = {
+      weapons: selectedWeapons,
+      projectCategories: selectedCategories,
+      timefame: selectedTimeframe!,
+      level: selectedLevel!,
+    };
+
+    fetch("/api/generate", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+    })
+      .then((res) => res.json())
+      .then((res: ProjectIdeas) => {
+        console.log(res.ideas);
+        setGeneratedIdeas(res.ideas);
+      })
+      .catch((err) => {
+        setGeneratedIdeas([]);
+        setGenerationError(err);
+      })
+      .finally(() => {
+        setIsGenerating(false);
+      });
+  };
 
   const goBack = () => {
     if (steps.findIndex((s) => s === currentStep) === 0) {
@@ -186,7 +224,7 @@ export default function GeneratorPage() {
         "Please select at your level of comfort from the options",
       );
     if (steps.findIndex((s) => s === currentStep) === steps.length - 1) {
-      setIsGenerating(true);
+      startGenerating();
     } else {
       setCurrentStep(steps[steps.findIndex((s) => s === currentStep) + 1]);
     }
@@ -199,7 +237,7 @@ export default function GeneratorPage() {
 
   return (
     <>
-      {!isGenerating && !isIdeaGenerated && !generationError ? (
+      {!isGenerating && generatedIdeas.length === 0 && !generationError ? (
         <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
           <Badge variant="default" className="text-xl">
             STEP {steps.findIndex((s) => s === currentStep) + 1} OF{" "}
@@ -289,7 +327,7 @@ export default function GeneratorPage() {
             </div>
           ) : currentStep === "PROJECT-CATEGORY" ? (
             <div className="grid grid-cols-2 gap-4">
-              {projectCategory.map((category, idx) => {
+              {projectCategories.map((category, idx) => {
                 const isSelected =
                   selectedCategories.find((c) => c.name === category.name) &&
                   true;
@@ -445,7 +483,7 @@ export default function GeneratorPage() {
             </Card>
           </div>
         </div>
-      ) : isIdeaGenerated ? (
+      ) : generatedIdeas.length !== 0 ? (
         <div className="flex my-10 flex-col items-center justify-center gap-4 gap-y-10">
           <Badge className="bg-green-500">
             <Sparkles /> IDEAS GENERATED SUCCESSFULLY
@@ -463,51 +501,43 @@ export default function GeneratorPage() {
               <h1 className="text-3xl">AI SUGGESTED PROJECTS</h1>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl">PROJECT IDEA 1</CardTitle>
-                  <CardDescription className="font-semibold italic border-b-5 pb-2">
-                    &quot;Lorem ipsum dolor, sit amet consectetur adipisicing
-                    elit. Repudiandae, excepturi officia? Totam autem, optio,
-                    natus sit vel mollitia reiciendis in distinctio neque
-                    nostrum nam necessitatibus obcaecati molestiae. Et,
-                    dignissimos sequi.&quot;
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Unde eius ut quis amet quisquam delectus natus,
-                    necessitatibus fuga, accusamus voluptates alias, magnam
-                    porro culpa nostrum cumque qui mollitia eum dolore.
-                  </p>
-                  <div className="border-b-5 pb-3">
-                    <h6 className="font-bold">RECOMMENDED TECH STACK:</h6>
+              {generatedIdeas.map((idea, idx) => (
+                <div key={idx} className="relative">
+                  <Badge className="absolute right-0">OPTION {idx + 1}</Badge>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-2xl">{idea.title}</CardTitle>
+                      <CardDescription className="font-semibold italic border-b-5 pb-2">
+                        &quot;{idea.shortDescription}&quot;
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p>{idea.longDescription}</p>
+                      <div className="pb-3">
+                        <h6 className="font-bold">RECOMMENDED TECH STACK:</h6>
 
-                    <div className="flex flex-wrap gap-1 5">
-                      <Badge variant={"neutral"}>HTML</Badge>
-                      <Badge variant={"neutral"}>Tailwind CSS</Badge>
-                      <Badge variant={"neutral"}>JavaScript</Badge>
-                      <Badge variant={"neutral"}>
-                        Chrome Extension Manifest V3
-                      </Badge>
-                      <Badge variant={"neutral"}>
-                        Chrome Extension Manifest V3
-                      </Badge>
-                      <Badge variant={"neutral"}>
-                        Chrome Extension Manifest V3
-                      </Badge>
-                      <Badge variant={"neutral"}>HTML</Badge>
-                      <Badge variant={"neutral"}>Tailwind CSS</Badge>
-                      <Badge variant={"neutral"}>JavaScript</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                        <div className="flex flex-wrap gap-1 5">
+                          {idea.recommendedTechStack.map((tech, idx) => (
+                            <Badge key={idx} variant={"neutral"}>
+                              {tech}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
             </div>
 
-            <div className="mt-5 flex items-center justify-between w-[70%] pt-5 border-t-5">
-              <Button size={"lg"}>
+            <div className="mt-5 flex items-center justify-between pt-5 border-t-5">
+              <Button
+                size={"lg"}
+                onClick={() => {
+                  setCurrentStep(steps[0]);
+                  setGeneratedIdeas([]);
+                }}
+              >
                 <ChevronLeft /> START OVER
               </Button>
             </div>
