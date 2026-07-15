@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
-import { ProjectIdeas } from "../api/generate/route";
-import { HackClubYSWS } from "../api/ysws/route";
+import { ProjectIdeas } from "../../api/generate/route";
+import { HackClubYSWS } from "../../api/ysws/route";
 import ProjectIdeaCard from "@/components/ProjectIdeaCard";
 
 interface Weapon {
@@ -260,6 +260,7 @@ export default function GeneratorPage() {
     selectedCategories,
     selectedLevel,
     selectedTimeframe,
+    selectedYSWS,
     fetchYSWS,
   ]);
 
@@ -273,14 +274,18 @@ export default function GeneratorPage() {
           </Badge>
           {currentStep === "YSWS-SELECTION" ? (
             <div className="text-center space-y-3">
-              <h1 className="text-4xl italic">CHOOSE AN ADVENTURE</h1>
+              <h1 className="md:text-4xl  text-2xl italic">
+                CHOOSE AN ADVENTURE
+              </h1>
               <p className="text-black/80">
                 Select the YSWS you want to participate in
               </p>
             </div>
           ) : currentStep === "WEAPON-SELECTION" ? (
             <div className="text-center space-y-3">
-              <h1 className="text-4xl italic">CHOOSE YOUR WEAPON</h1>
+              <h1 className="md:text-4xl  text-2xl italic">
+                CHOOSE YOUR WEAPON
+              </h1>
               <p className="text-black/80">
                 WHat kind of wizardry do you practice? Or what are you hoping to
                 learn? (Select all that apply)
@@ -288,7 +293,9 @@ export default function GeneratorPage() {
             </div>
           ) : currentStep === "PROJECT-CATEGORY" ? (
             <div className="text-center space-y-3">
-              <h1 className="text-4xl italic">FOLLOW YOUR EXCITEMENT</h1>
+              <h1 className="md:text-4xl  text-2xl italic">
+                FOLLOW YOUR EXCITEMENT
+              </h1>
               <p className="text-black/80">
                 What kind of problems or categories get you super hyped? (Select
                 all that apply)
@@ -296,7 +303,9 @@ export default function GeneratorPage() {
             </div>
           ) : currentStep === "TIMEFRAME" ? (
             <div className="text-center space-y-3">
-              <h1 className="text-4xl italic">CHECK THE CALENDER</h1>
+              <h1 className="md:text-4xl  text-2xl italic">
+                CHECK THE CALENDER
+              </h1>
               <p className="text-black/80">
                 How long can you realistically dedicate to this project? (Select
                 one)
@@ -304,7 +313,9 @@ export default function GeneratorPage() {
             </div>
           ) : currentStep === "LEVEL" ? (
             <div className="text-center space-y-3">
-              <h1 className="text-4xl italic">DETERMINE YOUR TIER</h1>
+              <h1 className="md:text-4xl  text-2xl italic">
+                DETERMINE YOUR TIER
+              </h1>
               <p className="text-black/80">
                 What is your current comfort level with software or hardware
                 engineering? (Select one)
@@ -344,7 +355,7 @@ export default function GeneratorPage() {
           {currentStep === "YSWS-SELECTION" ? (
             hackclubYSWS ? (
               <div className="w-[80%]">
-                <div className="grid grid-cols-4  gap-4">
+                <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
                   {hackclubYSWS.map((ysws, idx) => {
                     const isSelected = selectedYSWS?.name === ysws.name && true;
 
@@ -375,7 +386,7 @@ export default function GeneratorPage() {
                 </div>
               </div>
             ) : !formError ? (
-              <div className="grid grid-cols-4 w-[80%] gap-4">
+              <div className="grid md:grid-cols-4 grid-cols-1 w-[80%] gap-4">
                 <Card className={`flex gap-x-3 p-5 flex-row`}>
                   <div>
                     <Skeleton className="h-5 w-5" />
@@ -439,7 +450,7 @@ export default function GeneratorPage() {
               </div>
             ) : null
           ) : currentStep === "WEAPON-SELECTION" ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
               {weapons.map((weapon, idx) => {
                 const isSelected =
                   selectedWeapons.find((w) => w.name === weapon.name) && true;
@@ -472,7 +483,7 @@ export default function GeneratorPage() {
               })}
             </div>
           ) : currentStep === "PROJECT-CATEGORY" ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
               {projectCategories.map((category, idx) => {
                 const isSelected =
                   selectedCategories.find((c) => c.name === category.name) &&
@@ -536,7 +547,7 @@ export default function GeneratorPage() {
               })}
             </div>
           ) : currentStep === "LEVEL" ? (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:w-auto w-[80%]">
               {levels.map((level, idx) => {
                 const isSelected = selectedLevel?.name === level.name && true;
 
@@ -592,7 +603,9 @@ export default function GeneratorPage() {
           </Card>
 
           <div className="space-y-3 text-center">
-            <h1 className="text-4xl italic">ANALYZING YOUR INPUT...</h1>
+            <h1 className="md:text-4xl  text-2xl italic">
+              ANALYZING YOUR INPUT...
+            </h1>
 
             <Badge className="text-xl">GENERATING A COOL PROJECT IDEA</Badge>
           </div>
@@ -639,7 +652,9 @@ export default function GeneratorPage() {
             <Sparkles /> IDEAS GENERATED SUCCESSFULLY
           </Badge>
           <div className="space-y-3 text-center">
-            <h1 className="text-4xl italic">GOT SOME IDEAS HERE</h1>
+            <h1 className="md:text-4xl  text-2xl italic">
+              GOT SOME IDEAS HERE
+            </h1>
             <p className="text-black/80">
               We have analyzed your input and curated this project ideas
             </p>
@@ -650,7 +665,7 @@ export default function GeneratorPage() {
               <Sparkles />
               <h1 className="text-3xl">AI SUGGESTED PROJECTS</h1>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
               {generatedIdeas.map((idea, idx) => (
                 <ProjectIdeaCard idea={idea} idx={idx} key={idx} />
               ))}
@@ -676,7 +691,7 @@ export default function GeneratorPage() {
           </Card>
 
           <div className="space-y-3 text-center">
-            <h1 className="text-4xl italic">REQUEST FAILED</h1>
+            <h1 className="md:text-4xl  text-2xl italic">REQUEST FAILED</h1>
             <p className="text-black/80">
               AI service may currently be loaded, or there was a network issue.
               Please retry the idea generation
@@ -700,7 +715,7 @@ export default function GeneratorPage() {
             >
               START OVER
             </Button>
-          </div>
+          </div>grid-cols-1
         </div>
       ) : null}
     </>

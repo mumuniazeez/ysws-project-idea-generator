@@ -26,11 +26,11 @@ export default function Home() {
 
   return (
     <div className="flex  items-center flex-col py-10">
-      <div className="flex mt-40 flex-col items-center justify-center gap-4">
-        <h1 className="text-7xl max-w-4xl text-center font-bold mb-3">
+      <div className="flex mt-30 flex-col items-center justify-center gap-4">
+        <h1 className="md:text-7xl  text-3xl max-w-4xl text-center font-bold mb-3">
           Don&apos;t know what to build for your next YSWS?
         </h1>
-        <p className="text-2xl">
+        <p className="md:text-2xl">
           Let&apos;s suggest what you should build for your next YSWS
         </p>
         <div className="flex gap-x-3 mt-3">
@@ -44,11 +44,10 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="w-[80%] mt-10 border-t-5 pt-10">
-        <div className="flex justify-between">
+      <div className="w-[80%] mt-10 border-t-5 pt-10 mb-20 space-y-3">
+        <div className="flex justify-between gap-x-5">
           <div>
-            {" "}
-            <h1 className="text-4xl">SAVED PROJECT IDEAS</h1>
+            <h1 className="md:text-4xl  text-2xl">SAVED PROJECT IDEAS</h1>
             <p className="text-black/80">
               Your ideas are in the prison below. Won&apos;t let them out until
               you do
@@ -60,7 +59,7 @@ export default function Home() {
         </div>
 
         {savedIdeas.length !== 0 ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
             {savedIdeas.map((idea, idx) => (
               <ProjectIdeaCard idea={idea} idx={idx} key={idx} />
             ))}
