@@ -451,10 +451,9 @@ export default function GeneratorPage() {
             <Sparkles /> IDEAS GENERATED SUCCESSFULLY
           </Badge>
           <div className="space-y-3 text-center">
-            <h1 className="text-4xl italic">REQUEST FAILED</h1>
+            <h1 className="text-4xl italic">GOT SOME IDEAS HERE</h1>
             <p className="text-black/80">
-              AI service may currently be loaded, or there was a network issue.
-              Please retry the idea generation
+              We have analyzed your input and curated this project ideas
             </p>
           </div>
 
@@ -486,19 +485,31 @@ export default function GeneratorPage() {
                     <h6 className="font-bold">RECOMMENDED TECH STACK:</h6>
 
                     <div className="flex flex-wrap gap-1 5">
-                      <Badge>HTML</Badge>
-                      <Badge>Tailwind CSS</Badge>
-                      <Badge>JavaScript</Badge>
-                      <Badge>Chrome Extension Manifest V3</Badge>
-                      <Badge>Chrome Extension Manifest V3</Badge>
-                      <Badge>Chrome Extension Manifest V3</Badge>
-                      <Badge>HTML</Badge>
-                      <Badge>Tailwind CSS</Badge>
-                      <Badge>JavaScript</Badge>
+                      <Badge variant={"neutral"}>HTML</Badge>
+                      <Badge variant={"neutral"}>Tailwind CSS</Badge>
+                      <Badge variant={"neutral"}>JavaScript</Badge>
+                      <Badge variant={"neutral"}>
+                        Chrome Extension Manifest V3
+                      </Badge>
+                      <Badge variant={"neutral"}>
+                        Chrome Extension Manifest V3
+                      </Badge>
+                      <Badge variant={"neutral"}>
+                        Chrome Extension Manifest V3
+                      </Badge>
+                      <Badge variant={"neutral"}>HTML</Badge>
+                      <Badge variant={"neutral"}>Tailwind CSS</Badge>
+                      <Badge variant={"neutral"}>JavaScript</Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between w-[70%] pt-5 border-t-5">
+              <Button size={"lg"}>
+                <ChevronLeft /> START OVER
+              </Button>
             </div>
           </div>
         </div>
