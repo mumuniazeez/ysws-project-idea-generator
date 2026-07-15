@@ -1,4 +1,4 @@
-import { type ApiRequestBody } from "@/app/generator/page";
+import type { ApiRequestBody } from "@/app/(app)/generator/page";
 import hackclubAI from "@/lib/hackclubAI";
 import { generateText } from "ai";
 
