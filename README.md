@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YSWS PROJECT IDEA GENERATOR
 
-## Getting Started
+This is website that allow you to generate project ideas for your next YSWS project. If you don't know what to build next, you definitely need this.
 
-First, run the development server:
+![Project Screenshot](./public/project_screenshot.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This project come with this features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Step by step quiz-like form to get details for the kind of idea you want to build.
+- Get up to three ideas based on the theme you want
+- Saved ideas that stand out to you
+- Remove ideas when you don't need them
+- A gamified UI designed specifically for Hack clubbers
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Theme
 
-## Learn More
+This project uses Neobrutalism Design
 
-To learn more about Next.js, take a look at the following resources:
+[Check here for more Details](https://www.neobrutalism.dev/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack Used
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- NextJS
+- ReactJS
+- Shadcn Design System (Neobrutalism)
+- TailwindCSS
 
-## Deploy on Vercel
+## Contribute to this project
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Help make this project better for Hack clubbers.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feel Free to raise an issue or create a PR.
+
+### Environment Variable
+
+For the environment variables a sample is projected at `.env.example`, any new environment variable must be added to this file for other to know.
+
+### Usage
+
+To run this project on your computer, follow those steps
+
+1. Clone this repo
+
+   ```bash
+   git clone https://github.com/mumuniazeez/ysws-project-idea-generator.git
+
+   cd ysws-project-idea-generator
+   ```
+
+2. Install all the dependencies
+
+   ```bash
+   pnpm install
+   ```
+
+   Feel free to use any package manager of your choice
+
+3. Run the project
+
+   ```bash
+   pnpm dev
+   ```
+
+## License
+
+MIT
+
+## AI Disclosure
+
+AI wasn't used in any part of the project. All code and UI was completely written and design by me.

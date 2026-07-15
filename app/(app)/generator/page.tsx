@@ -1,8 +1,5 @@
 "use client";
-/**@abstract
- * 
- Add a footer to the layout and the github repo and stuff like that
- */
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -689,7 +686,6 @@ export default function GeneratorPage() {
           <Card className="p-5 bg-red-500">
             <ShieldAlertIcon color="white" size={34} />
           </Card>
-
           <div className="space-y-3 text-center">
             <h1 className="md:text-4xl  text-2xl italic">REQUEST FAILED</h1>
             <p className="text-black/80">
@@ -700,7 +696,6 @@ export default function GeneratorPage() {
           <Alert variant={"destructive"} className="my-5 text-green-300">
             <AlertDescription>{generationError}</AlertDescription>
           </Alert>
-
           <div className="flex items-center justify-center gap-x-5">
             <Button size={"lg"}>
               <RefreshCw /> RETRY
@@ -715,7 +710,8 @@ export default function GeneratorPage() {
             >
               START OVER
             </Button>
-          </div>grid-cols-1
+          </div>
+          grid-cols-1
         </div>
       ) : null}
     </>
