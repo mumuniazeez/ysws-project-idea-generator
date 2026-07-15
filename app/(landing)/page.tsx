@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Sparkle, BoxIcon } from "lucide-react";
+import { Sparkle, BoxIcon, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Idea } from "../api/generate/route";
@@ -10,12 +10,20 @@ export default function Home() {
   const router = useRouter();
 
   const [savedIdeas, setSavedIdeas] = useState<Idea[]>([]);
+  const [isRefreshing, setIsRefresing] = useState(false);
+
+  const loadSavedIdeas = () => {
+    setIsRefresing(true);
+    const savedIdeasStr = localStorage.getItem("savedIdeas");
+    if (savedIdeasStr) setSavedIdeas(JSON.parse(savedIdeasStr));
+    setTimeout(() => setIsRefresing(false), 1000);
+  };
 
   useEffect(() => {
-    const savedIdeasStr = localStorage.getItem("savedIdeas");
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (savedIdeasStr) setSavedIdeas(JSON.parse(savedIdeasStr));
+    loadSavedIdeas();
   }, []);
+
   return (
     <div className="flex  items-center flex-col py-10">
       <div className="flex mt-40 flex-col items-center justify-center gap-4">
@@ -37,11 +45,19 @@ export default function Home() {
       </div>
 
       <div className="w-[80%] mt-10 border-t-5 pt-10">
-        <h1 className="text-4xl">SAVED PROJECT IDEAS</h1>
-        <p className="text-black/80">
-          Your ideas are in the prison below. Won&apos;t let them out until you
-          do
-        </p>
+        <div className="flex justify-between">
+          <div>
+            {" "}
+            <h1 className="text-4xl">SAVED PROJECT IDEAS</h1>
+            <p className="text-black/80">
+              Your ideas are in the prison below. Won&apos;t let them out until
+              you do
+            </p>
+          </div>
+          <Button onClick={loadSavedIdeas}>
+            <RefreshCcw className={`${isRefreshing && "animate-spin"}`} />
+          </Button>
+        </div>
 
         {savedIdeas.length !== 0 ? (
           <div className="grid grid-cols-2 gap-4">

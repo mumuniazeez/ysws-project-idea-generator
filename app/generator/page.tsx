@@ -1,37 +1,27 @@
 "use client";
-
+/**@abstract
+ * 
+ Add a footer to the layout and the github repo and stuff like that
+ */
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { RadioGroup } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Bookmark,
-  ChevronDownIcon,
-  ChevronLast,
   ChevronLeft,
   ChevronRight,
-  Heart,
   RefreshCw,
   Shield,
   ShieldAlertIcon,
   Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ProjectIdeas } from "../api/generate/route";
 import { HackClubYSWS } from "../api/ysws/route";
-import Image from "next/image";
 import ProjectIdeaCard from "@/components/ProjectIdeaCard";
 
 interface Weapon {
@@ -224,6 +214,7 @@ export default function GeneratorPage() {
       router.push("/");
     } else {
       setCurrentStep(steps[steps.findIndex((s) => s === currentStep) - 1]);
+      setFormError("");
     }
   };
   const goNext = () => {
@@ -248,7 +239,7 @@ export default function GeneratorPage() {
     }
   };
 
-  const fetchYSWS = () => {
+  const fetchYSWS = useCallback(() => {
     if (hackclubYSWS) return;
     fetch("/api/ysws", { method: "GET" })
       .then((res) => res.json())
@@ -258,13 +249,19 @@ export default function GeneratorPage() {
       .catch(() => {
         setFormError("Failed to fetch active YSWS, please reload this page");
       });
-  };
+  }, [hackclubYSWS]);
 
   useEffect(() => {
     fetchYSWS();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormError("");
-  }, [selectedWeapons, selectedCategories, selectedLevel, selectedTimeframe]);
+  }, [
+    selectedWeapons,
+    selectedCategories,
+    selectedLevel,
+    selectedTimeframe,
+    fetchYSWS,
+  ]);
 
   return (
     <>
