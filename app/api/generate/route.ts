@@ -2,7 +2,7 @@ import { type ApiRequestBody } from "@/app/generator/page";
 import hackclubAI from "@/lib/hackclubAI";
 import { generateText } from "ai";
 
-type Idea = {
+export type Idea = {
   title: string;
   shortDescription: string;
   longDescription: string;

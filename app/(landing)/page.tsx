@@ -1,13 +1,24 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Sparkle } from "lucide-react";
+import { Sparkle, BoxIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Idea } from "../api/generate/route";
+import ProjectIdeaCard from "@/components/ProjectIdeaCard";
 
 export default function Home() {
   const router = useRouter();
+
+  const [savedIdeas, setSavedIdeas] = useState<Idea[]>([]);
+
+  useEffect(() => {
+    const savedIdeasStr = localStorage.getItem("savedIdeas");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (savedIdeasStr) setSavedIdeas(JSON.parse(savedIdeasStr));
+  }, []);
   return (
-    <div>
-      <div className="flex my-50 flex-col items-center justify-center gap-4">
+    <div className="flex  items-center flex-col py-10">
+      <div className="flex mt-40 flex-col items-center justify-center gap-4">
         <h1 className="text-7xl max-w-4xl text-center font-bold mb-3">
           Don&apos;t know what to build for your next YSWS?
         </h1>
@@ -23,6 +34,25 @@ export default function Home() {
             <Sparkle /> GET STARTED
           </Button>
         </div>
+      </div>
+
+      <div className="w-[80%] mt-10 border-t-5 pt-10">
+        <h1 className="text-4xl">SAVED PROJECT IDEAS</h1>
+        <p className="text-black/80">Your ideas are in the prison below</p>
+
+        {savedIdeas.length !== 0 ? (
+          <div className="grid grid-cols-2 gap-4">
+            {savedIdeas.map((idea, idx) => (
+              <ProjectIdeaCard idea={idea} idx={idx} key={idx} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-y-4">
+            <BoxIcon size={60} />
+            <h3 className="text-2xl">NO PROJECT SAVED YET!</h3>
+            <p>Generate some ideas and saved them to see them here</p>
+          </div>
+        )}
       </div>
     </div>
   );

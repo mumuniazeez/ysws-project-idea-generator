@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -15,10 +16,12 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Bookmark,
   ChevronDownIcon,
   ChevronLast,
   ChevronLeft,
   ChevronRight,
+  Heart,
   RefreshCw,
   Shield,
   ShieldAlertIcon,
@@ -27,6 +30,9 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ProjectIdeas } from "../api/generate/route";
+import { HackClubYSWS } from "../api/ysws/route";
+import Image from "next/image";
+import ProjectIdeaCard from "@/components/ProjectIdeaCard";
 
 interface Weapon {
   name: string;
@@ -140,9 +146,15 @@ const levels: Level[] = [
   },
 ];
 
-type Step = "WEAPON-SELECTION" | "PROJECT-CATEGORY" | "TIMEFRAME" | "LEVEL";
+type Step =
+  | "YSWS-SELECTION"
+  | "WEAPON-SELECTION"
+  | "PROJECT-CATEGORY"
+  | "TIMEFRAME"
+  | "LEVEL";
 
 const steps: Step[] = [
+  "YSWS-SELECTION",
   "WEAPON-SELECTION",
   "PROJECT-CATEGORY",
   "TIMEFRAME",
@@ -154,9 +166,11 @@ export interface ApiRequestBody {
   projectCategories: ProjectCategory[];
   timefame: Timeframe;
   level: Level;
+  ysws: HackClubYSWS;
 }
 
 export default function GeneratorPage() {
+  const [selectedYSWS, setSelectedYSWS] = useState<HackClubYSWS | null>(null);
   const [selectedWeapons, setSelectedWeapons] = useState<Weapon[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<
     ProjectCategory[]
@@ -165,9 +179,10 @@ export default function GeneratorPage() {
     null,
   );
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
-  const [currentStep, setCurrentStep] = useState<Step>("WEAPON-SELECTION");
+  const [currentStep, setCurrentStep] = useState<Step>("YSWS-SELECTION");
   const [formError, setFormError] = useState("");
   const [generationError, setGenerationError] = useState("");
+  const [hackclubYSWS, setHackclubYSWS] = useState<HackClubYSWS[] | null>(null);
   const router = useRouter();
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -183,6 +198,7 @@ export default function GeneratorPage() {
       projectCategories: selectedCategories,
       timefame: selectedTimeframe!,
       level: selectedLevel!,
+      ysws: selectedYSWS!,
     };
 
     fetch("/api/generate", {
@@ -211,6 +227,8 @@ export default function GeneratorPage() {
     }
   };
   const goNext = () => {
+    if (currentStep === "YSWS-SELECTION" && selectedYSWS === null)
+      return setFormError("Please select a YSWS from the options");
     if (currentStep === "WEAPON-SELECTION" && selectedWeapons.length === 0)
       return setFormError("Please select at least one skill from the options");
     if (currentStep === "PROJECT-CATEGORY" && selectedCategories.length === 0)
@@ -230,7 +248,20 @@ export default function GeneratorPage() {
     }
   };
 
+  const fetchYSWS = () => {
+    if (hackclubYSWS) return;
+    fetch("/api/ysws", { method: "GET" })
+      .then((res) => res.json())
+      .then((res: HackClubYSWS[]) => {
+        setHackclubYSWS(res);
+      })
+      .catch(() => {
+        setFormError("Failed to fetch active YSWS, please reload this page");
+      });
+  };
+
   useEffect(() => {
+    fetchYSWS();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormError("");
   }, [selectedWeapons, selectedCategories, selectedLevel, selectedTimeframe]);
@@ -243,7 +274,14 @@ export default function GeneratorPage() {
             STEP {steps.findIndex((s) => s === currentStep) + 1} OF{" "}
             {steps.length}
           </Badge>
-          {currentStep === "WEAPON-SELECTION" ? (
+          {currentStep === "YSWS-SELECTION" ? (
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl italic">CHOOSE AN ADVENTURE</h1>
+              <p className="text-black/80">
+                Select the YSWS you want to participate in
+              </p>
+            </div>
+          ) : currentStep === "WEAPON-SELECTION" ? (
             <div className="text-center space-y-3">
               <h1 className="text-4xl italic">CHOOSE YOUR WEAPON</h1>
               <p className="text-black/80">
@@ -289,10 +327,121 @@ export default function GeneratorPage() {
             <Alert className="w-[70%]" variant={"destructive"}>
               <Shield size={24} />
               <AlertTitle>{formError}</AlertTitle>
+
+              {currentStep === "YSWS-SELECTION" && !hackclubYSWS && (
+                <Button
+                  variant={"noShadow"}
+                  className="absolute top-2.5 right-3 h-6 bg-secondary-background text-foreground"
+                  onClick={() => {
+                    fetchYSWS();
+                    setFormError("");
+                  }}
+                >
+                  <RefreshCw />
+                  RETRY
+                </Button>
+              )}
             </Alert>
           )}
 
-          {currentStep === "WEAPON-SELECTION" ? (
+          {currentStep === "YSWS-SELECTION" ? (
+            hackclubYSWS ? (
+              <div className="w-[80%]">
+                <div className="grid grid-cols-4  gap-4">
+                  {hackclubYSWS.map((ysws, idx) => {
+                    const isSelected = selectedYSWS?.name === ysws.name && true;
+
+                    const toggle = (
+                      e: React.MouseEvent | React.ChangeEvent,
+                    ) => {
+                      e.preventDefault();
+                      if (!isSelected) setSelectedYSWS(ysws);
+                    };
+                    return (
+                      <Card
+                        className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
+                        key={idx}
+                        onClick={toggle}
+                      >
+                        <div>
+                          <Checkbox checked={isSelected} onChange={toggle} />
+                        </div>
+                        <div>
+                          <h5>{ysws.name}</h5>
+                          <p className="text-sm text-black/80">
+                            {ysws.description}
+                          </p>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : !formError ? (
+              <div className="grid grid-cols-4 w-[80%] gap-4">
+                <Card className={`flex gap-x-3 p-5 flex-row`}>
+                  <div>
+                    <Skeleton className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-30" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                  </div>
+                </Card>
+                <Card className={`flex gap-x-3 p-5 flex-row`}>
+                  <div>
+                    <Skeleton className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-30" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                  </div>
+                </Card>
+                <Card className={`flex gap-x-3 p-5 flex-row`}>
+                  <div>
+                    <Skeleton className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-30" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                  </div>
+                </Card>
+                <Card className={`flex gap-x-3 p-5 flex-row`}>
+                  <div>
+                    <Skeleton className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-30" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                  </div>
+                </Card>
+                <Card className={`flex gap-x-3 p-5 flex-row`}>
+                  <div>
+                    <Skeleton className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-30" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                    <Skeleton className="h-3 w-60" />
+                  </div>
+                </Card>
+              </div>
+            ) : null
+          ) : currentStep === "WEAPON-SELECTION" ? (
             <div className="grid grid-cols-2 gap-4">
               {weapons.map((weapon, idx) => {
                 const isSelected =
@@ -427,7 +576,11 @@ export default function GeneratorPage() {
                 ? "CANCEL"
                 : "BACK"}
             </Button>
-            <Button size={"lg"} onClick={goNext}>
+            <Button
+              size={"lg"}
+              onClick={goNext}
+              disabled={formError ? true : false}
+            >
               {steps.findIndex((s) => s === currentStep) === steps.length - 1
                 ? "GENERATE IDEA"
                 : "CONTINUE"}{" "}
@@ -502,31 +655,7 @@ export default function GeneratorPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {generatedIdeas.map((idea, idx) => (
-                <div key={idx} className="relative">
-                  <Badge className="absolute right-0">OPTION {idx + 1}</Badge>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-2xl">{idea.title}</CardTitle>
-                      <CardDescription className="font-semibold italic border-b-5 pb-2">
-                        &quot;{idea.shortDescription}&quot;
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <p>{idea.longDescription}</p>
-                      <div className="pb-3">
-                        <h6 className="font-bold">RECOMMENDED TECH STACK:</h6>
-
-                        <div className="flex flex-wrap gap-1 5">
-                          {idea.recommendedTechStack.map((tech, idx) => (
-                            <Badge key={idx} variant={"neutral"}>
-                              {tech}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <ProjectIdeaCard idea={idea} idx={idx} key={idx} />
               ))}
             </div>
 
