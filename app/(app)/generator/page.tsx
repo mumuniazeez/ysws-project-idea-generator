@@ -365,8 +365,12 @@ export default function GeneratorPage() {
                   {hackclubYSWS
                     .filter(
                       (ysws) =>
-                        ysws.name.includes(yswsSearchQuery) ||
-                        ysws.description.includes(yswsSearchQuery),
+                        ysws.name
+                          .toLowerCase()
+                          .includes(yswsSearchQuery.toLowerCase()) ||
+                        ysws.description
+                          .toLowerCase()
+                          .includes(yswsSearchQuery.toLowerCase()),
                     )
                     .map((ysws, idx) => {
                       const isSelected =
@@ -709,11 +713,14 @@ export default function GeneratorPage() {
               Please retry the idea generation
             </p>
           </div>
-          <Alert variant={"destructive"} className="my-5 text-green-300 w-[80%]">
+          <Alert
+            variant={"destructive"}
+            className="my-5 text-green-300 w-[80%]"
+          >
             <AlertDescription>{generationError}</AlertDescription>
           </Alert>
           <div className="flex items-center justify-center gap-x-5">
-            <Button size={"lg"}>
+            <Button size={"lg"} onClick={startGenerating}>
               <RefreshCw /> RETRY
             </Button>
             <Button
