@@ -15,8 +15,8 @@ export default function LandingPageLayout({
           <Button>Signup</Button>
         </div>
       </header> */}
-      <main>{children}</main>
-      <footer className="bg-black flex items-center justify-between md:flex-row flex-col gap-2 py-5 px-20 text-white">
+      <main className="mb-10">{children}</main>
+      <footer className="bg-black flex items-center justify-between md:flex-row flex-col gap-2 py-5 px-20 text-white fixed bottom-0 w-full">
         <p>
           Built with {"<3"} by{" "}
           <Link
