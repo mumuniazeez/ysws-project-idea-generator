@@ -284,7 +284,7 @@ export default function GeneratorPage() {
                 CHOOSE YOUR WEAPON
               </h1>
               <p className="text-black/80">
-                WHat kind of wizardry do you practice? Or what are you hoping to
+                What kind of wizardry do you practice? Or what are you hoping to
                 learn? (Select all that apply)
               </p>
             </div>
