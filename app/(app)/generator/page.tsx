@@ -20,6 +20,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ProjectIdeas } from "../../api/generate/route";
 import { HackClubYSWS } from "../../api/ysws/route";
 import ProjectIdeaCard from "@/components/ProjectIdeaCard";
+import { Input } from "@/components/ui/input";
 
 interface Weapon {
   name: string;
@@ -168,6 +169,7 @@ export default function GeneratorPage() {
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [currentStep, setCurrentStep] = useState<Step>("YSWS-SELECTION");
   const [formError, setFormError] = useState("");
+  const [yswsSearchQuery, setYswsSearchQuery] = useState("");
   const [generationError, setGenerationError] = useState("");
   const [hackclubYSWS, setHackclubYSWS] = useState<HackClubYSWS[] | null>(null);
   const router = useRouter();
@@ -199,7 +201,7 @@ export default function GeneratorPage() {
       })
       .catch((err) => {
         setGeneratedIdeas([]);
-        setGenerationError(err);
+        setGenerationError(err.toString());
       })
       .finally(() => {
         setIsGenerating(false);
@@ -284,7 +286,7 @@ export default function GeneratorPage() {
                 CHOOSE YOUR WEAPON
               </h1>
               <p className="text-black/80">
-                WHat kind of wizardry do you practice? Or what are you hoping to
+                What kind of wizardry do you practice? Or what are you hoping to
                 learn? (Select all that apply)
               </p>
             </div>
@@ -352,34 +354,52 @@ export default function GeneratorPage() {
           {currentStep === "YSWS-SELECTION" ? (
             hackclubYSWS ? (
               <div className="w-[80%]">
+                <Input
+                  type="search"
+                  className="mb-2 w-[50%] mx-auto"
+                  placeholder="Search for a YSWS (e.g horizons, boba, hardware, game, website)"
+                  value={yswsSearchQuery}
+                  onChange={(e) => setYswsSearchQuery(e.target.value)}
+                />
                 <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
-                  {hackclubYSWS.map((ysws, idx) => {
-                    const isSelected = selectedYSWS?.name === ysws.name && true;
+                  {hackclubYSWS
+                    .filter(
+                      (ysws) =>
+                        ysws.name
+                          .toLowerCase()
+                          .includes(yswsSearchQuery.toLowerCase()) ||
+                        ysws.description
+                          .toLowerCase()
+                          .includes(yswsSearchQuery.toLowerCase()),
+                    )
+                    .map((ysws, idx) => {
+                      const isSelected =
+                        selectedYSWS?.name === ysws.name && true;
 
-                    const toggle = (
-                      e: React.MouseEvent | React.ChangeEvent,
-                    ) => {
-                      e.preventDefault();
-                      if (!isSelected) setSelectedYSWS(ysws);
-                    };
-                    return (
-                      <Card
-                        className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
-                        key={idx}
-                        onClick={toggle}
-                      >
-                        <div>
-                          <Checkbox checked={isSelected} onChange={toggle} />
-                        </div>
-                        <div>
-                          <h5>{ysws.name}</h5>
-                          <p className="text-sm text-black/80">
-                            {ysws.description}
-                          </p>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                      const toggle = (
+                        e: React.MouseEvent | React.ChangeEvent,
+                      ) => {
+                        e.preventDefault();
+                        if (!isSelected) setSelectedYSWS(ysws);
+                      };
+                      return (
+                        <Card
+                          className={`flex gap-x-3 p-5 flex-row ${isSelected && "bg-main"}`}
+                          key={idx}
+                          onClick={toggle}
+                        >
+                          <div>
+                            <Checkbox checked={isSelected} onChange={toggle} />
+                          </div>
+                          <div>
+                            <h5>{ysws.name}</h5>
+                            <p className="text-sm text-black/80">
+                              {ysws.description}
+                            </p>
+                          </div>
+                        </Card>
+                      );
+                    })}
                 </div>
               </div>
             ) : !formError ? (
@@ -447,7 +467,7 @@ export default function GeneratorPage() {
               </div>
             ) : null
           ) : currentStep === "WEAPON-SELECTION" ? (
-            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:w-auto w-[80%]">
               {weapons.map((weapon, idx) => {
                 const isSelected =
                   selectedWeapons.find((w) => w.name === weapon.name) && true;
@@ -480,7 +500,7 @@ export default function GeneratorPage() {
               })}
             </div>
           ) : currentStep === "PROJECT-CATEGORY" ? (
-            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:w-auto w-[80%]">
               {projectCategories.map((category, idx) => {
                 const isSelected =
                   selectedCategories.find((c) => c.name === category.name) &&
@@ -514,7 +534,7 @@ export default function GeneratorPage() {
               })}
             </div>
           ) : currentStep === "TIMEFRAME" ? (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:w-auto w-[80%]">
               {timeframes.map((timeframe, idx) => {
                 const isSelected =
                   selectedTimeframe?.name === timeframe.name && true;
@@ -693,11 +713,14 @@ export default function GeneratorPage() {
               Please retry the idea generation
             </p>
           </div>
-          <Alert variant={"destructive"} className="my-5 text-green-300">
+          <Alert
+            variant={"destructive"}
+            className="my-5 text-green-300 w-[80%]"
+          >
             <AlertDescription>{generationError}</AlertDescription>
           </Alert>
           <div className="flex items-center justify-center gap-x-5">
-            <Button size={"lg"}>
+            <Button size={"lg"} onClick={startGenerating}>
               <RefreshCw /> RETRY
             </Button>
             <Button
@@ -711,7 +734,6 @@ export default function GeneratorPage() {
               START OVER
             </Button>
           </div>
-          grid-cols-1
         </div>
       ) : null}
     </>

@@ -17,13 +17,14 @@ export async function POST(request: Request) {
 
   console.log(body);
 
-  const { text } = await generateText({
-    model: hackclubAI("google/gemini-3-flash-preview"),
-    instructions: [
-      {
-        role: "system",
-        content:
-          `You are an AI powered Hack Club: You ship, We ship idea generator,
+  try {
+    const { text } = await generateText({
+      model: hackclubAI("google/gemini-3-flash-preview"),
+      instructions: [
+        {
+          role: "system",
+          content:
+            `You are an AI powered Hack Club: You ship, We ship idea generator,
             You are to help the user to generate project ideas for their next YSWS. 
             The user will  provided a JSON format of information regarding the idea they want.
             You will return a "JSON output only" matching the schema below
@@ -39,16 +40,20 @@ export async function POST(request: Request) {
                 ]
             }
           `.trim(),
-      },
-    ],
-    prompt: `
+        },
+      ],
+      prompt: `
     Below is a JSON containing information for the kind of idea i want, give me some ideas i can build for my next YSWS project
 
     ${JSON.stringify(body)}
     `.trim(),
-  });
+    });
 
-  console.log(text);
+    console.log(text);
 
-  return Response.json(JSON.parse(text));
+    return Response.json(JSON.parse(text));
+  } catch (error) {
+    console.log(error);
+    return Response.json("Idea Generation Failed, please try again");
+  }
 }
