@@ -15,8 +15,6 @@ export interface ProjectIdeas {
 export async function POST(request: Request) {
   const body: ApiRequestBody = await request.json();
 
-  console.log(body);
-
   try {
     const { text } = await generateText({
       model: hackclubAI("google/gemini-3-flash-preview"),
@@ -48,8 +46,6 @@ export async function POST(request: Request) {
     ${JSON.stringify(body)}
     `.trim(),
     });
-
-    console.log(text);
 
     return Response.json(JSON.parse(text));
   } catch (error) {

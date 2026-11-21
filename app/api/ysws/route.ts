@@ -1,40 +1,53 @@
 export interface HackClubYSWS {
+  id: string;
+  slug: string;
   name: string;
-  description: string;
-  website: string;
-  slack: string;
-  slackChannel: string;
-  status: "active"; // fetching only active ysws program
-
-  // Optional fields based on the dataset
-  deadline?: string; // e.g., "2026-07-28T04:59:59Z" or "2026-08-31"
-  opens?: string; // e.g., "2026-07-01"
-  detailedDescription?: string;
-  steps?: string[];
-
-  // These fields can appear as either a single string or an array of strings
-  details?: string | string[];
-  requirements?: string | string[];
+  description: string | null;
+  url: string;
+  status: "ongoing" | "upcoming" | "ended";
+  startDate: string | null;
+  endDate: string | null;
+  announcedAt: string;
+  format: string | null;
+  inPerson: {
+    start: string | null;
+    end: string | null;
+    location: string | null;
+  } | null;
+  projectTypes: string[];
+  slackChannel: string | null;
+  slackUrl: string | null;
+  requirements: string | null;
+  pinned: boolean;
+  logoUrl: string | null;
+  background: unknown;
+  theme: unknown;
 }
 
 export async function GET() {
-  const res = await fetch("https://ysws.hackclub.com/api.json");
+  try {
+    const res = await fetch("https://hackclub.com/api/v1/events", {
+      next: { revalidate: 300 },
+    });
 
-  if (!res.ok) throw new Error("Failed to fecth YSWs programs");
+    if (!res.ok) {
+      return Response.json(
+        { error: "Failed to fetch YSWS programs" },
+        { status: 502 },
+      );
+    }
 
-  const response: {
-    limitedTime: HackClubYSWS[];
-    recentlyEnded: HackClubYSWS[];
-    drafts: HackClubYSWS[];
-    indefinite: HackClubYSWS[];
-  } = await res.json();
+    const response = (await res.json()) as { data?: HackClubYSWS[] };
+    const events = Array.isArray(response.data) ? response.data : [];
+    const activeEvents = events.filter(
+      (event) => event.status === "ongoing" || event.status === "upcoming",
+    );
 
-  const yswsArr = [
-    ...response.limitedTime,
-    ...response.recentlyEnded,
-    ...response.drafts,
-    ...response.indefinite,
-  ];
-
-  return Response.json(yswsArr.filter((ysws) => ysws.status === "active"));
+    return Response.json(activeEvents);
+  } catch {
+    return Response.json(
+      { error: "Failed to fetch YSWS programs" },
+      { status: 502 },
+    );
+  }
 }

@@ -196,7 +196,6 @@ export default function GeneratorPage() {
     })
       .then((res) => res.json())
       .then((res: ProjectIdeas) => {
-        console.log(res.ideas);
         setGeneratedIdeas(res.ideas);
       })
       .catch((err) => {
@@ -368,7 +367,7 @@ export default function GeneratorPage() {
                         ysws.name
                           .toLowerCase()
                           .includes(yswsSearchQuery.toLowerCase()) ||
-                        ysws.description
+                        (ysws.description ?? "")
                           .toLowerCase()
                           .includes(yswsSearchQuery.toLowerCase()),
                     )
@@ -394,7 +393,7 @@ export default function GeneratorPage() {
                           <div>
                             <h5>{ysws.name}</h5>
                             <p className="text-sm text-black/80">
-                              {ysws.description}
+                              {ysws.description ?? "No description available"}
                             </p>
                           </div>
                         </Card>
